@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: './.env' });
-
+import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
 import("./config/database.js").sequalize;
@@ -13,7 +13,7 @@ import User from "./model/user.js";
 import Product from "./model/product.js";
 import verifyToken from "./middleware/auth.js";
 import isAdmin from "./middleware/admin.js";
-
+app.use(cors())
 // register
 app.post("/users", async (req, res) => {
   try {
