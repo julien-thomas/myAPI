@@ -11,9 +11,15 @@ const app = express();
 app.use(bodyParser.json());
 import User from "./model/user.js";
 import Product from "./model/product.js";
+import Address from "./model/address.js";
 import verifyToken from "./middleware/auth.js";
 import isAdmin from "./middleware/admin.js";
 app.use(cors())
+
+/* *****************************************************************
+USERS
+***************************************************************** */
+
 // register
 app.post("/users", async (req, res) => {
   try {
@@ -190,6 +196,9 @@ app.get("/", (req, res) => {
   res.send('Successful response.');
 });
 
+/* *****************************************************************
+PRODUCTS
+***************************************************************** */
 
 // create products
 app.post("/products", isAdmin, async (req, res) => {
@@ -254,6 +263,42 @@ app.delete("/products/:id", isAdmin, async (req, res) => {
     const id = parseInt(req.params.id);
     await Product.destroy({ where: { id: id } });
     res.status(200).send(`product ${id} deleted`);
+  } catch (err) {
+    console.log(err);
+  }
+})
+
+/* *****************************************************************
+ADDRESSES
+***************************************************************** */
+
+// create address
+app.post("/address/:id", verifyToken, async (req, res) => {
+  try {
+    const currentUser = req.user;
+    const id = parseInt(req.params.id);
+    if ((currentUser.role != 'admin') && (currentUser.sub != id)) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    // get address input
+    const { road, postalCode, city, country } = req.body;
+
+    // address input validation
+    if (!(road && postalCode && city && country)) {
+      res.status(400).send("All inputs are required");
+    }
+
+    // create address in the database
+    const address = await Address.create({
+      road: road,
+      postalCode: postalCode,
+      city: city,
+      country: country,
+      user_id: id
+    });
+
+    // return new address
+    res.status(201).json(address);
   } catch (err) {
     console.log(err);
   }
