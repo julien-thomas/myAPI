@@ -14,6 +14,10 @@ const Product = sequelize.define("product", {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: null,
   },
+  picture: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  }
 });
 
 export default Product;

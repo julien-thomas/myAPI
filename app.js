@@ -204,7 +204,7 @@ PRODUCTS
 app.post("/products", isAdmin, async (req, res) => {
   try {
     // get product input
-    const { name, description, price } = req.body;
+    const { name, picture, description, price } = req.body;
 
     // product input validation
     if (!(name && price)) {
@@ -214,6 +214,7 @@ app.post("/products", isAdmin, async (req, res) => {
     // create product in the database
     const product = await Product.create({
       name: name,
+      picture: picture,
       description: description,
       price: price
     });
@@ -246,9 +247,9 @@ app.get("/products/:id", async (req, res) => {
 
 app.put("/products/:id", isAdmin, async (req, res) => {
   try {
-    const id = req.params.id;
-    const { name, description, price } = req.body;
-    await Product.update({ name: name, description: description, price: price }, {
+    const id = parseInt(req.params.id);
+    const { name, picture, description, price } = req.body;
+    await Product.update({ name: name, picture: picture, description: description, price: price }, {
       where: { id: id }
     });
     const product = await Product.findOne({ where: { id: id } });
@@ -299,6 +300,52 @@ app.post("/address/:id", verifyToken, async (req, res) => {
 
     // return new address
     res.status(201).json(address);
+  } catch (err) {
+    console.log(err);
+  }
+})
+
+app.get("/address/:id", verifyToken, async (req, res) => {
+  try {
+    const currentUser = req.user;
+    const id = parseInt(req.params.id);
+    if ((currentUser.role != 'admin') && (currentUser.sub != id)) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const address = await Address.findOne({ where: { user_id: id } });
+    res.status(200).json(address);
+  } catch (err) {
+    console.log(err);
+  }
+})
+
+app.put("/address/:id", verifyToken, async (req, res) => {
+  try {
+    const currentUser = req.user;
+    const id = parseInt(req.params.id);
+    if ((currentUser.role != 'admin') && (currentUser.sub != id)) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const { road, postalCode, city, country } = req.body;
+    await Address.update({ road: road, postalCode: postalCode, city: city, country: country }, {
+      where: { user_id: id }
+    });
+    const address = await Address.findOne({ where: { user_id: id } });
+    res.status(200).json(address);
+  } catch (err) {
+    console.log(err);
+  }
+})
+
+app.delete("/address/:id", verifyToken, async (req, res) => {
+  try {
+    const currentUser = req.user;
+    const id = parseInt(req.params.id);
+    if ((currentUser.role != 'admin') && (currentUser.sub != id)) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    await Address.destroy({ where: { user_id: id } });
+    res.status(200).send(`address deleted`);
   } catch (err) {
     console.log(err);
   }
