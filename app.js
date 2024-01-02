@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: './.env' });
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 import("./config/database.js").sequalize;
 import express from "express";
 import bodyParser from "body-parser";
@@ -39,7 +39,7 @@ app.post("/users", async (req, res) => {
     }
 
     // encrypt user password
-    const encryptedPassword = await bcrypt.hash(password, 10);
+    const encryptedPassword = await bcryptjs.hash(password, 10);
 
     // create user in the database
     const user = await User.create({
@@ -68,6 +68,7 @@ app.post("/users", async (req, res) => {
     console.log(err);
   }
 })
+
 // login
 app.post("/login", async (req, res) => {
   try {
@@ -82,7 +83,7 @@ app.post("/login", async (req, res) => {
     // check if user exist in the database
     const user = await User.findOne({ where: { email: req.body.email } });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (user && (await bcryptjs.compare(password, user.password))) {
       // create token
       const token = jwt.sign(
         { sub: user.id, role: user.role, email: user.email },
@@ -151,7 +152,7 @@ app.put("/users/:id", verifyToken, async (req, res) => {
       }
     }
 
-    const encryptedPassword = await bcrypt.hash(password, 10);
+    const encryptedPassword = await bcryptjs.hash(password, 10);
     await User.update(
       {
         firstname: firstname,
