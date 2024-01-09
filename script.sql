@@ -34,7 +34,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     token VARCHAR(255),
     role VARCHAR(255) NOT NULL DEFAULT 'user',
-    address_id INT CONSTRAINT `users_ibfk_1` FOREIGN KEY (`address_id`) REFERENCES `addresses` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    address_id INT /* CONSTRAINT `users_ibfk_1` FOREIGN KEY (`address_id`) REFERENCES `addresses` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION */,
     createdAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 );
